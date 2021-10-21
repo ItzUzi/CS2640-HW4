@@ -42,52 +42,52 @@ tkeN:
 				# asks for N again
 	sw	$t0, 4($sp)	# stores val of r in stack
 	sw	$t1, 8($sp)	# stores val of n in stack
-	move	$v0, $t0
-	move	$v1, $t1
-
+	move	$v0, $t0	# stores r in $v0
+	move	$v1, $t1	# stores n in $v1
+	jal	check
 comb:	
-	jal	bsecse
+	lw	$v0, 4($sp)	# stores r in $v0
+	lw	$v1, 8($sp)	# stores n in $v1
+	jal	check
 	jal	comb1
-	lw	$v0, 4($sp)	# copies r into $v0
-	lw 	$v1, 8($sp)	# copies n into $v1
+	lw	$v1, 8($sp)	#resets n since n is the only changed val
 	jal	comb2
 	lw	$v0, 4($sp)
 	lw	$v1, 8($sp)
 	addiu	$v0, $v0, -1
 	addiu	$v1, $v1, -1
-	sw	$v0, 4($sp)
+	sw	$v0, 4($sp)	# decrements both n and r
 	sw	$v1, 8($sp)
-	jal	check
-	j	comb
+	j comb
 comb1:
 	sw	$ra, 0($sp)
-	addi	$v1, $v1, -1
-	move	$v0, $a1
-	jal	bsecse
+	addiu	$v1, $v1, -1	#decrements n to follow combination fact	
+	jal	bscse
+	bne	$a0, 1, comb1	#checks if its a base case
 	la	$a0, 0($sp)
 	jr	$a0
 comb2:
 	sw	$ra, 0($sp)
-	addi	$v1, $v1, -1
-	addi	$v0, $v0, -1
-	jal	bsecse
-	la	$a0, 0($sp)
-	jr	$a0
-bsecse:
-	beqz	$v0, incm
-	beq	$v0, $v1, incm	
+	addiu	$v0, $v0, -1	#decrements r
+	addiu	$v1, $v1, -1	#decrements n
+	jal	bscse
+	bne	$a0, 1, comb2	#checks if base case
+	la	$a0, 0($sp)	
+	jr	$a0		#returns to method caller
+bscse:
+	bne	$v0, $v1, nbscs	# if not base case do nothing
+	bnez	$v0, nbscs	#if not base case do nothing
+	lw	$t0, 12($sp)	# takes value from result
+	addiu	$t0, $t0, 1	# increments by 1
+	sw	$t0, 12($sp)	# stores incremented value onto stack
+	li	$a0, 1		# 1 if base case is true
 	jr	$ra
-incm:	
-	lw	$t0, 12($sp)	#adds 1 to result
-	addi 	$t0, $t0, 1	
-	sw	$t0, 12($sp)
-	lw	$t0, 8($sp)
-	beqz	$t0, done
-check:
-	lw	$v0, 4($sp)
-	lw	$v1, 8($sp)
-	beqz	$v0, done
-	beq	$v0, $v1, done
+nbscs:	
+	li	$a0, 0		# 1 if base case false
+	jr	$ra		#jumps back to subroutine that called it
+check:	
+	beq	$v0, $v1, done	# takes stack values and checks for base case from there
+	beqz	$v0, done	#base case check
 	jr	$ra
 done:	
 	la	$a0, rslt
