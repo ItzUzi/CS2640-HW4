@@ -61,8 +61,14 @@ comb1:
 	sw	$a1, 8($sp)	# value of r
 	
 	# base case 1 n == r
-	li	$v0, 1
 	beq	$a0, $a1, cmbdne
+	
+	move	$s0, $a0
+	move	$s0, $a1
+	sub	$a0, $a0, 1
+	bne	$a0, $a1, comb1
+	
+	addi	$v0, $v0, 1
 	
 	jal	comb2
 	# base case 2 r == 0
@@ -74,6 +80,7 @@ comb2:
 	sw	$a0, 4($sp)	# store n
 	sw	$a1, 8($sp)	# store r
 	
+	jal	comb1
 	jr	$ra
 cmbdne:
 	lw	$ra, 0($sp)
@@ -83,7 +90,7 @@ cmbdne:
 	jr	$ra
 done:
 	sw	$v0, sum
-	# prints result w/ sum
+	# prints result string w/ sum
 	la	$a0, rslt
 	li	$v0, 4
 	syscall
