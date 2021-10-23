@@ -61,31 +61,40 @@ comb:
 	sw	$s0, 4($sp)
 	sw	$s1, 8($sp)
 	
-	beq	$a0, $a1, cm1dne	# base case n == r
-	beqz	$a1, cm1dne		# base case r == 0
+	beq	$a0, $a1, cmdne		# base case n == r
+	beqz	$a1, cmdne		# base case r == 0
 	
 	move	$s0, $a0
 	move	$s1, $a1
 	sub	$a0, $a0, 1
-
+		
 	jal	comb
+
+	addi	$v0, $v0, 1
+	sub	$a0, $s0, 1		# a0 = s0 - 1
+	sub	$a1, $s1, 1		# a1 = s1 - 1
+	bnez	$a1, call
 	addiu	$v0, $v0, 1
-	
-	move	$a0, $s0		# reset $a0 to stack amount
-	move	$a1, $s1		# reset $a1 to stack amount
-	
-	sub	$a0, $a0, 1		# second branch input
-	sub	$a1, $a1, 1
-	
-	jal comb
-	addiu	$v0, $v0, 1
-	
-	cm1dne:	
+	j	cmdne
+call:	jal	comb
+	cmdne:	
 		lw 	$ra, 0($sp)
 		lw	$s0, 4($sp)
 		lw	$s1, 8($sp)
 		addiu	$sp, $sp, 12
 		jr	$ra
+
+comb2:	
+	addiu	$sp, $sp, -12
+	sw	$ra, 0($sp)
+	sw	$s0, 4($sp)
+	sw	$s1, 8($sp)
+	
+	beqz	$a1, cmdne
+	
+	move	$s0, $a0 
+	move	$s1, $a1
+	sub	$a0, $a0, 1
 
 done:
 	sw	$v0, sum
