@@ -16,8 +16,7 @@ main:
 	jal	getN
 	lw	$a0, valN
 	lw	$a1, valR
-	li	$v0, 0
-	jal	comb
+	jal	cmbint
 	j	done
 
 getR:	
@@ -55,47 +54,36 @@ getN:
 #	0($sp)	hold return address
 #	4($sp)	hold r
 #	8($sp)	hold n
+cmbint:
+	li	$v0, 0			# result
 comb:
-	addiu	$sp, $sp, -12		# makes space on stack for 3 int
+	addiu	$sp, $sp, -12		# makes space on stack for 3 ints
 	sw	$ra, 0($sp)
 	sw	$s0, 4($sp)
 	sw	$s1, 8($sp)
 	
 	beq	$a0, $a1, cmdne		# base case n == r
-	beqz	$a1, cmdne		# base case r == 0
 	
 	move	$s0, $a0
 	move	$s1, $a1
 	sub	$a0, $a0, 1
 		
 	jal	comb
-
+	
 	addi	$v0, $v0, 1
-	sub	$a0, $s0, 1		# a0 = s0 - 1
-	sub	$a1, $s1, 1		# a1 = s1 - 1
-	bnez	$a1, call
-	addiu	$v0, $v0, 1
-	j	cmdne
-call:	jal	comb
+comb2:
+	subi	$a0, $s0, 1
+	subi	$a1, $s1, 1
+	bnez	$a1, comb		# r != 0 jump back to loop
+	addi	$v0, $v0, 1
+	
 	cmdne:	
 		lw 	$ra, 0($sp)
 		lw	$s0, 4($sp)
 		lw	$s1, 8($sp)
 		addiu	$sp, $sp, 12
 		jr	$ra
-
-comb2:	
-	addiu	$sp, $sp, -12
-	sw	$ra, 0($sp)
-	sw	$s0, 4($sp)
-	sw	$s1, 8($sp)
-	
-	beqz	$a1, cmdne
-	
-	move	$s0, $a0 
-	move	$s1, $a1
-	sub	$a0, $a0, 1
-
+		
 done:
 	sw	$v0, sum
 	# prints result string w/ sum
