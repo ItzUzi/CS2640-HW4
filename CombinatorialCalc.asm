@@ -55,37 +55,35 @@ getN:
 #	4($sp)	hold r
 #	8($sp)	hold n
 cmbint:
-	li	$v0, 0			# result
+	li	$v1, 0			# result
+	move	$s0, $a0
+	move	$s1, $a1
 comb:
 	addiu	$sp, $sp, -12		# makes space on stack for 3 ints
 	sw	$ra, 0($sp)
 	sw	$s0, 4($sp)
 	sw	$s1, 8($sp)
 	
-	beq	$a0, $a1, cmdne		# base case n == r
+	beq	$s0, $s1, incr
+	beqz	$s1, incr
 	
-	move	$s0, $a0
-	move	$s1, $a1
-	sub	$a0, $a0, 1
+	sub	$s0, $s0, 1		# n - 1
 		
-	jal	comb
-	
-	addi	$v0, $v0, 1
-comb2:
-	subi	$a0, $s0, 1
-	subi	$a1, $s1, 1
-	bnez	$a1, comb		# r != 0 jump back to loop
-	addi	$v0, $v0, 1
-	
-	cmdne:	
-		lw 	$ra, 0($sp)
-		lw	$s0, 4($sp)
-		lw	$s1, 8($sp)
-		addiu	$sp, $sp, 12
-		jr	$ra
-		
+	jal	comb			#(n-1, r)
+cmd2:
+	sub	$s1, $s1, 1		# r - 1
+	jal	comb			#(n-1, r-1)
+	j	cmdne
+incr:
+	addi	$v1, $v1, 1		# adds if (n-1, r-1) is base case
+cmdne:
+	lw	$ra, 0($sp)
+	lw	$s0, 4($sp)
+	lw	$s1, 8($sp)
+	addiu	$sp, $sp, 12
+	jr	$ra
 done:
-	sw	$v0, sum
+	sw	$v1, sum
 	# prints result string w/ sum
 	la	$a0, rslt
 	li	$v0, 4
