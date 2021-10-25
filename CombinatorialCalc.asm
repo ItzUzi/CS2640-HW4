@@ -5,7 +5,7 @@ rqmtN:	.asciiz "n must be greater than r\n"
 rqmtR:	.asciiz "r must be greater than 0\n"
 rslt:	.asciiz "Result is: "
 	.align	2
-sum:	.word	0
+total:	.word	0
 valR:	.word	0
 valN:	.word	0
 		.text
@@ -55,7 +55,7 @@ getN:
 #	4($sp)	hold r
 #	8($sp)	hold n
 cmbint:
-	li	$v1, 0			# result
+	li	$v0, 0			# result
 	move	$s0, $a0
 	move	$s1, $a1
 comb:
@@ -75,7 +75,7 @@ cmd2:
 	jal	comb			#(n-1, r-1)
 	j	cmdne
 incr:
-	addi	$v1, $v1, 1		# adds if (n-1, r-1) is base case
+	addi	$v0, $v0, 1		# adds if base case
 cmdne:
 	lw	$ra, 0($sp)
 	lw	$s0, 4($sp)
@@ -83,12 +83,12 @@ cmdne:
 	addiu	$sp, $sp, 12
 	jr	$ra
 done:
-	sw	$v1, sum
+	sw	$v0, total
 	# prints result string w/ sum
 	la	$a0, rslt
 	li	$v0, 4
 	syscall
-	lw	$a0, sum
+	lw	$a0, total
 	li	$v0, 1
 	syscall
 
