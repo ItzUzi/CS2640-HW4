@@ -12,12 +12,12 @@ valN:	.word	0
 
 .globl main
 main:
-	jal	getR
-	jal	getN
-	lw	$a0, valN
-	lw	$a1, valR
-	jal	cmbint
-	j	done
+	jal	getR		# calls subroutine to get R from user
+	jal	getN		# calls subroutine to get N from user
+	lw	$a0, valN	# loads value N into $a0
+	lw	$a1, valR	# loads value R into $a1
+	jal	cmbint		# calls combinatorial routine
+	j	done		# jumps to done
 
 getR:	
 	# prints out prompt and requirment for r
